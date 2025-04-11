@@ -125,4 +125,3 @@ RESULT=$(echo "$RESULT" | jq --arg explanation "$EXPLANATION" \
 
 echo "$RESULT"
 exit 0
-EOF

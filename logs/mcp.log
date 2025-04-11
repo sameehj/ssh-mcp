@@ -1,0 +1,201 @@
+2025-04-11T10:26:39Z [none] REQUEST: {"tool":"meta.discover"}
+2025-04-11T10:26:39Z [none] RESPONSE: {"conversation_id":"none","status":{"code":0,"message":"Success"},"result":{
+  "tools": [
+  {
+    "name": "meta.describe",
+    "description": "Returns detailed description for a specific tool",
+    "version": "0.1.0",
+    "author": "ssh-mcp Team",
+    "tags": [
+  "meta",
+  " discovery",
+  " documentation"
+]
+  },
+  {
+    "name": "meta.discover",
+    "description": "Lists all available tools with their descriptions",
+    "version": "0.1.0",
+    "author": "ssh-mcp Team",
+    "tags": [
+  "meta",
+  " discovery",
+  " documentation"
+]
+  },
+  {
+    "name": "meta.schema",
+    "description": "Returns the JSON schema for a specific tool",
+    "version": "0.1.0",
+    "author": "ssh-mcp Team",
+    "tags": [
+  "meta",
+  " schema",
+  " validation"
+]
+  },
+  {
+    "name": "system.info",
+    "description": "Returns basic system information",
+    "version": "0.1.0",
+    "author": "ssh-mcp Team",
+    "tags": [
+  "system",
+  " monitoring",
+  " diagnostics"
+]
+  }
+],
+  "count": 4,
+  "explanation": "These are all the available tools on this system. You can get more details about a specific tool using meta.describe.",
+  "suggestions": [
+  ]
+},"error":null}
+2025-04-11T10:27:33Z [none] REQUEST: {"tool":"meta.describe","args":{"tool":"system.info"}}
+2025-04-11T10:27:33Z [none] RESPONSE: {"conversation_id":"none","status":{"code":0,"message":"Success"},"result":{
+  "tool": "system.info",
+  "description": "Returns basic system information",
+  "metadata": {
+    "author": "ssh-mcp Team",
+    "version": "0.1.0",
+    "created": "",
+    "tags": [
+  "system",
+  " monitoring",
+  " diagnostics"
+]
+  },
+  "args_description": [
+  "Args:",
+  "verbose: Set to true for more detailed information (boolean, default: false)"
+],
+  "examples": [
+  "Example:",
+  "{\"tool\": \"system.info\", \"args\": {\"verbose\": true}}"
+],
+  "schema": {
+  "type": "object",
+  "properties": {
+    "verbose": {
+      "type": "boolean",
+      "description": "Whether to include detailed system information",
+      "default": false
+    }
+  }
+},
+  "explanation": "This tool (system.info) is used for Returns basic system information. It was created by ssh-mcp Team and is currently at version 0.1.0.",
+  "suggestions": [
+    {"tool": "meta.schema", "description": "Get the JSON schema for this tool"},
+    {"tool": "meta.discover", "description": "Discover other available tools"}
+  ]
+},"error":null}
+2025-04-11T10:27:45Z [none] REQUEST: {"tool":"meta.schema","args":{"tool":"system.info"}}
+2025-04-11T10:27:45Z [none] RESPONSE: {"conversation_id":"none","status":{"code":0,"message":"Success"},"result":{
+  "tool": "system.info",
+  "schema": {
+  "type": "object",
+  "properties": {
+    "verbose": {
+      "type": "boolean",
+      "description": "Whether to include detailed system information",
+      "default": false
+    }
+  }
+},
+  "explanation": "This is the JSON schema for the system.info tool. It defines the expected input format.",
+  "suggestions": [
+    {"tool": "meta.describe", "description": "Get full description of this tool"},
+    {"tool": "meta.discover", "description": "Discover other available tools"}
+  ]
+},"error":null}
+2025-04-11T10:27:51Z [none] REQUEST: {"tool":"meta.discover","args":{}}
+2025-04-11T10:27:51Z [none] RESPONSE: {"conversation_id":"none","status":{"code":0,"message":"Success"},"result":{
+  "tools": [
+  {
+    "name": "meta.describe",
+    "description": "Returns detailed description for a specific tool",
+    "version": "0.1.0",
+    "author": "ssh-mcp Team",
+    "tags": [
+  "meta",
+  " discovery",
+  " documentation"
+]
+  },
+  {
+    "name": "meta.discover",
+    "description": "Lists all available tools with their descriptions",
+    "version": "0.1.0",
+    "author": "ssh-mcp Team",
+    "tags": [
+  "meta",
+  " discovery",
+  " documentation"
+]
+  },
+  {
+    "name": "meta.schema",
+    "description": "Returns the JSON schema for a specific tool",
+    "version": "0.1.0",
+    "author": "ssh-mcp Team",
+    "tags": [
+  "meta",
+  " schema",
+  " validation"
+]
+  },
+  {
+    "name": "system.info",
+    "description": "Returns basic system information",
+    "version": "0.1.0",
+    "author": "ssh-mcp Team",
+    "tags": [
+  "system",
+  " monitoring",
+  " diagnostics"
+]
+  }
+],
+  "count": 4,
+  "explanation": "These are all the available tools on this system. You can get more details about a specific tool using meta.describe.",
+  "suggestions": [
+  ]
+},"error":null}
+2025-04-11T10:27:51Z [none] REQUEST: {"tool":"meta.describe","args":{"tool":"system.info"}}
+2025-04-11T10:27:51Z [none] RESPONSE: {"conversation_id":"none","status":{"code":0,"message":"Success"},"result":{
+  "tool": "system.info",
+  "description": "Returns basic system information",
+  "metadata": {
+    "author": "ssh-mcp Team",
+    "version": "0.1.0",
+    "created": "",
+    "tags": [
+  "system",
+  " monitoring",
+  " diagnostics"
+]
+  },
+  "args_description": [
+  "Args:",
+  "verbose: Set to true for more detailed information (boolean, default: false)"
+],
+  "examples": [
+  "Example:",
+  "{\"tool\": \"system.info\", \"args\": {\"verbose\": true}}"
+],
+  "schema": {
+  "type": "object",
+  "properties": {
+    "verbose": {
+      "type": "boolean",
+      "description": "Whether to include detailed system information",
+      "default": false
+    }
+  }
+},
+  "explanation": "This tool (system.info) is used for Returns basic system information. It was created by ssh-mcp Team and is currently at version 0.1.0.",
+  "suggestions": [
+    {"tool": "meta.schema", "description": "Get the JSON schema for this tool"},
+    {"tool": "meta.discover", "description": "Discover other available tools"}
+  ]
+},"error":null}
