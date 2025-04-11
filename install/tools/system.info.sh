@@ -1,4 +1,3 @@
-cat > install/tools/system.info.sh << 'EOF'
 #!/bin/bash
 # Tool: system.info - Returns basic system information
 # Author: ssh-mcp Team

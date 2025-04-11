@@ -1,10 +1,9 @@
 #!/bin/bash
 # mcp.sh: Machine Chat Protocol over SSH implementation
-# Version: 0.1.0
+# Version: 0.1.1
 
 set -e
 
-# Configuration
 # Configuration
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
@@ -16,25 +15,11 @@ GLOBAL_TOOL_DIR="$HOME/.ssh-mcp/tools"
 LOCAL_LOG_DIR="$SCRIPT_DIR/logs"
 GLOBAL_LOG_DIR="$HOME/.ssh-mcp"
 
-TOOL_FILE_LOCAL="$LOCAL_TOOL_DIR/$TOOL.sh"
-TOOL_FILE_GLOBAL="$GLOBAL_TOOL_DIR/$TOOL.sh"
+# Set default tool directory and log file
+TOOL_DIR="$GLOBAL_TOOL_DIR"
+LOG_FILE="$GLOBAL_LOG_DIR/ssh-mcp.log"
 
-if [ -f "$TOOL_FILE_LOCAL" ]; then
-    TOOL_DIR="$LOCAL_TOOL_DIR"
-elif [ -f "$TOOL_FILE_GLOBAL" ]; then
-    TOOL_DIR="$GLOBAL_TOOL_DIR"
-else
-    TOOL_DIR=""  # Let the tool-not-found error handle it
-fi
-
-# Choose the log directory/file - prefer local for development
-if [ -d "$LOCAL_LOG_DIR" ] || mkdir -p "$LOCAL_LOG_DIR" 2>/dev/null; then
-    LOG_FILE="$LOCAL_LOG_DIR/mcp.log"
-else
-    LOG_FILE="$GLOBAL_LOG_DIR/mcp.log"
-fi
-
-# Display help if requested
+# Handle command line arguments first
 if [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
   cat <<HELP
 ssh-mcp: Machine Chat Protocol over SSH
@@ -80,11 +65,11 @@ fi
 
 # Show version
 if [ "$1" = "--version" ]; then
-  echo "ssh-mcp version 0.1.0"
+  echo "ssh-mcp version 0.1.1"
   exit 0
 fi
 
-# Add this to the mcp.sh script
+# Show hosts
 if [ "$1" = "--hosts" ]; then
   echo "Available SSH hosts:"
   echo "------------------"
@@ -119,6 +104,15 @@ fi
 TOOL=$(echo "$INPUT" | jq -r '.tool')
 ARGS=$(echo "$INPUT" | jq -r '.args // {}')
 CONVERSATION_ID=$(echo "$INPUT" | jq -r '.conversation_id // "none"')
+
+# NOW determine which tool directory to use, AFTER we have the TOOL value
+if [ -f "$GLOBAL_TOOL_DIR/$TOOL.sh" ]; then
+    TOOL_DIR="$GLOBAL_TOOL_DIR"
+elif [ -f "$LOCAL_TOOL_DIR/$TOOL.sh" ]; then
+    TOOL_DIR="$LOCAL_TOOL_DIR"
+else
+    TOOL_DIR="$GLOBAL_TOOL_DIR"  # Default to global
+fi
 
 # Log the request
 echo "$(date -u +"%Y-%m-%dT%H:%M:%SZ") [$CONVERSATION_ID] REQUEST: $INPUT" >> "$LOG_FILE"
