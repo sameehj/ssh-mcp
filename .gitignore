@@ -1,0 +1,20 @@
+# Logs
+logs/
+*.log
+ssh-mcp.log
+
+# SSH keys and credentials
+*.pem
+*.key
+*.pub
+
+# Temporary files
+*.tmp
+.DS_Store
+
+# Environment configuration
+.env
+config.local.json
+
+# User-specific config
+*.local.sh
