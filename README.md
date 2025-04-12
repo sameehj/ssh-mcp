@@ -285,7 +285,7 @@ MIT License — see `LICENSE` file for details.
 
 ## 🎯 Architecture Diagram
 
-![SSH-MCP Architecture](./assets/architecture.png)
+![SSH-MCP Architecture](./assets/ssh-mcp_architecture.png)
 
 ---
 
