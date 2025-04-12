@@ -158,20 +158,54 @@ if [ -n "$REMOTE_SERVER" ]; then
 
   echo "Checking for remote 'jq' dependency..."
   if ! ssh_exec "$REMOTE_SERVER" "command -v jq &>/dev/null"; then
-    echo "  Installing jq (no update)..."
-    ssh_exec "$REMOTE_SERVER" "DEBIAN_FRONTEND=noninteractive sudo apt-get install -y jq"
-  fi
+    echo "Warning: jq is not available on the remote server."
+    echo "Checking if this is a shared hosting environment..."
+    
+    # Try to detect shared hosting environment
+    IS_SHARED_HOSTING=false
+    if ssh_exec "$REMOTE_SERVER" "uname -a | grep -i cpanel" &>/dev/null; then
+      IS_SHARED_HOSTING=true
+    fi
 
-  WRAPPER_PATH="$INSTALL_DIR/ssh-mcp"
+    if [ "$IS_SHARED_HOSTING" = true ]; then
+      echo "Detected shared hosting environment (cPanel/Hostgator)"
+      echo "Attempting to use Python as a fallback for JSON processing..."
+      
+      # Create a Python fallback script for JSON processing
+      ssh_exec "$REMOTE_SERVER" "cat > $REMOTE_PATH/json_helper.py" << 'PYEOF'
+#!/usr/bin/env python
+import sys
+import json
 
-  cat > "$WRAPPER_PATH" << EOF
+def process_json():
+    try:
+        data = json.load(sys.stdin)
+        if len(sys.argv) > 1:
+            if sys.argv[1] == '--arg':
+                data[sys.argv[2]] = sys.argv[3]
+            elif sys.argv[1] == '--argjson':
+                data[sys.argv[2]] = json.loads(sys.argv[3])
+        print(json.dumps(data))
+    except Exception as e:
+        sys.stderr.write(f"Error: {str(e)}\n")
+        sys.exit(1)
+
+if __name__ == "__main__":
+    process_json()
+PYEOF
+
+      ssh_exec "$REMOTE_SERVER" "chmod +x $REMOTE_PATH/json_helper.py"
+      
+      # Create the wrapper script in the specified installation directory
+      echo "Creating wrapper script..."
+      cat > "$INSTALL_DIR/ssh-mcp" << EOF
 #!/bin/bash
 SERVER="$REMOTE_SERVER"
 REMOTE_PATH="$REMOTE_PATH"
 SSH_KEY="$SSH_KEY"
 
 SSH_CMD="ssh"
-[ -n "\$SSH_KEY" ] && SSH_CMD="ssh -i \$SSH_KEY"
+[ -n "$SSH_KEY" ] && SSH_CMD="ssh -i $SSH_KEY"
 
 if [ "\$1" = "--help" ] || [ "\$1" = "-h" ]; then
   echo "ssh-mcp: Machine Chat Protocol over SSH"
@@ -181,12 +215,12 @@ if [ "\$1" = "--help" ] || [ "\$1" = "-h" ]; then
   echo "  ssh-mcp --list"
   echo "  ssh-mcp --describe TOOL"
   echo "  ssh-mcp --help"
-  echo "Remote server: \$SERVER"
+  echo "Remote server: $SERVER"
   exit 0
 fi
 
 if [ "\$1" = "--list" ]; then
-  \$SSH_CMD \$SERVER "cd \$REMOTE_PATH && ./mcp.sh --list"
+  \$SSH_CMD "$SERVER" "cd $REMOTE_PATH && ./mcp.sh --list"
   exit 0
 fi
 
@@ -195,22 +229,49 @@ if [ "\$1" = "--describe" ]; then
     echo "Usage: ssh-mcp --describe TOOL"
     exit 1
   fi
-  \$SSH_CMD \$SERVER "cd \$REMOTE_PATH && ./mcp.sh --describe \$2"
+  \$SSH_CMD "$SERVER" "cd $REMOTE_PATH && ./mcp.sh --describe \$2"
   exit 0
 fi
 
 if [ -n "\$1" ]; then
   TOOL="\$1"
   ARGS="\${2:-{}}"
-  PAYLOAD=$(jq -cn --arg tool "\$TOOL" --argjson args "\$ARGS" '{tool: $tool, args: $args}')
-  echo "\$PAYLOAD" | \$SSH_CMD \$SERVER "cd \$REMOTE_PATH && ./mcp.sh"
+  
+  # Use Python fallback for JSON processing
+  if command -v jq &>/dev/null; then
+    PAYLOAD=\$(echo "{}" | jq --arg tool "\$TOOL" --argjson args "\$ARGS" '. + {tool: \$tool, args: \$args}')
+  else
+    echo "{}" | python3 "$REMOTE_PATH/json_helper.py" --arg tool "\$TOOL" --argjson args "\$ARGS" > /tmp/payload.json
+    PAYLOAD=\$(cat /tmp/payload.json)
+    rm -f /tmp/payload.json
+  fi
+  
+  echo "\$PAYLOAD" | \$SSH_CMD "$SERVER" "cd $REMOTE_PATH && ./mcp.sh"
   exit 0
 fi
 
-cat | \$SSH_CMD \$SERVER "cd \$REMOTE_PATH && ./mcp.sh"
+cat | \$SSH_CMD "$SERVER" "cd $REMOTE_PATH && ./mcp.sh"
 EOF
 
-  chmod +x "$WRAPPER_PATH"
+      chmod +x "$INSTALL_DIR/ssh-mcp"
+      
+      echo "Remote installation complete!"
+      echo "Try: ssh-mcp --list"
+      echo "     ssh-mcp system.info '{\"verbose\":true}'"
+      exit 0
+    else
+      echo "This seems to be a standard server environment."
+      echo "Attempting to install jq via package manager..."
+      if ssh_exec "$REMOTE_SERVER" "command -v apt-get &>/dev/null"; then
+        ssh_exec "$REMOTE_SERVER" "DEBIAN_FRONTEND=noninteractive sudo apt-get install -y jq"
+      elif ssh_exec "$REMOTE_SERVER" "command -v yum &>/dev/null"; then
+        ssh_exec "$REMOTE_SERVER" "sudo yum install -y jq"
+      else
+        echo "Warning: Could not install jq. Some features may not work."
+      fi
+    fi
+  fi
+
   echo "Remote installation complete!"
   echo "Try: ssh-mcp --list"
   echo "     ssh-mcp system.info '{\"verbose\":true}'"

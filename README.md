@@ -4,7 +4,7 @@
 ![Status: Pre-release](https://img.shields.io/badge/status-pre--release-orange)
 ![AI-Ready](https://img.shields.io/badge/AI-ready-blue)
 
-`ssh-mcp` is a **simple, secure, and structured** CLI tool that enables AI agents and developers to execute JSON-based commands over SSH using the Machine Chat Protocol (MCP).
+`ssh-mcp` is a **simple, secure, and structured** CLI tool that enables AI agents and developers to execute JSON-based commands over SSH using the Model Context Protocol (MCP).
 
 **The missing bridge between AI and ops.**
 

@@ -3,6 +3,7 @@
 # Author: ssh-mcp Team
 # Version: 0.1.0
 # Tags: system, monitoring, diagnostics
+# Requires sudo: false
 #
 # Args:
 #   verbose: Set to true for more detailed information (boolean, default: false)
