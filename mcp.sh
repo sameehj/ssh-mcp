@@ -130,8 +130,25 @@ ARGS_FILE=$(mktemp)
 echo "$ARGS" > "$ARGS_FILE"
 
 # Execute the tool with the args file
-RESULT=$(bash "$TOOL_DIR/$TOOL.sh" "$ARGS_FILE" 2>/tmp/mcp_error.txt)
-EXIT_CODE=$?
+REQUIRES_SUDO=$(grep -m 1 "# Requires sudo:" "$TOOL_DIR/$TOOL.sh" | sed 's/# Requires sudo: //' || echo "false")
+
+if [ "$REQUIRES_SUDO" = "true" ]; then
+  # Check if sudo is available
+  if ! command -v sudo >/dev/null 2>&1; then
+    RESPONSE="{\"conversation_id\":\"$CONVERSATION_ID\",\"status\":{\"code\":403,\"message\":\"Sudo required but not available\"},\"result\":null,\"error\":{\"code\":\"SUDO_REQUIRED\",\"message\":\"This tool requires elevated privileges\"}}"
+    echo "$RESPONSE"
+    echo "$(date -u +"%Y-%m-%dT%H:%M:%SZ") [$CONVERSATION_ID] RESPONSE: $RESPONSE" >> "$LOG_FILE"
+    exit 1
+  fi
+  
+  # Execute with sudo
+  RESULT=$(sudo bash "$TOOL_DIR/$TOOL.sh" "$ARGS_FILE" 2>/tmp/mcp_error.txt)
+  EXIT_CODE=$?
+else
+  # Normal execution without sudo
+  RESULT=$(bash "$TOOL_DIR/$TOOL.sh" "$ARGS_FILE" 2>/tmp/mcp_error.txt)
+  EXIT_CODE=$?
+fi
 
 # Clean up the temporary file
 rm "$ARGS_FILE"

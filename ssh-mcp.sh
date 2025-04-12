@@ -2,6 +2,8 @@
 # ssh-mcp: Smart client for Machine Chat Protocol over SSH
 # Version: 0.2.0
 
+set -e
+
 SSH_CONFIG="$HOME/.ssh/config"
 INTERACTIVE=true
 
@@ -22,6 +24,7 @@ show_help() {
     echo "Hosts are read from ~/.ssh/config"
     exit 1
 }
+
 
 # Function to list and select hosts from SSH config
 select_host() {
@@ -150,6 +153,34 @@ remote_exec() {
         $SSH_CMD "$REMOTE_SERVER" "cd $REMOTE_PATH && $1"
     fi
 }
+
+# If first arg is empty and input is JSON, parse host/tool/args from stdin
+if [[ -z "$1" && ! -t 0 ]]; then
+  MCP_INPUT=$(cat)
+  HOST=$(echo "$MCP_INPUT" | jq -r '.host // empty')
+  TOOL=$(echo "$MCP_INPUT" | jq -r '.tool // empty')
+  ARGS=$(echo "$MCP_INPUT" | jq -c '.args // {}')
+
+  if [[ -z "$HOST" || -z "$TOOL" ]]; then
+    echo "Error: Missing host or tool in input JSON"
+    exit 1
+  fi
+
+  INTERACTIVE=false
+
+  # Get user/identity manually
+  USER=$(awk "/^Host $HOST\$/,/^$/ {if (\$1 == \"User\") print \$2}" "$SSH_CONFIG")
+  IDENTITY=$(awk "/^Host $HOST\$/,/^$/ {if (\$1 == \"IdentityFile\") print \$2}" "$SSH_CONFIG")
+  IDENTITY="${IDENTITY/#\~/$HOME}"
+  REMOTE_SERVER="${USER:+$USER@}$HOST"
+
+  SSH_CMD="ssh"
+  [ -n "$IDENTITY" ] && SSH_CMD="ssh -i $IDENTITY"
+
+  echo "$MCP_INPUT" | remote_exec "./mcp.sh"
+  exit $?
+fi
+
 
 # Handle commands
 case "$1" in
