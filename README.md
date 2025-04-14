@@ -154,14 +154,17 @@ If you're building:
 ## ⚡ Quick Start
 
 ```bash
-# 1. Install (planned)
-curl -s https://mcp.sh/install | bash
+# 1. Install
+git clone https://github.com/sameehj/ssh-mcp.git
+cd ssh-mcp
+chmod +x install.sh
+./install.sh
 
 # 2. Run a tool
 echo '{"tool":"system.info"}' | ssh-mcp user@host
 ```
 
-> Note: The `mcp.sh` installer and domain are under development. You can clone the repo and run directly from `./mcp.sh`.
+> Note: Package manager support (`brew`, `apt`, `scoop`) is planned for future releases.
 
 ---
 
