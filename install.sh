@@ -284,7 +284,7 @@ mkdir -p "$TOOL_DIR"
 if [ ! -w "$INSTALL_DIR" ]; then
   echo "Need sudo to install to $INSTALL_DIR"
   sudo cp "$SCRIPT_DIR/mcp.sh" "$INSTALL_DIR/ssh-mcp"
-  sudo chmod +x "$INSTALL_DIR/ssh-mucp"
+  sudo chmod +x "$INSTALL_DIR/ssh-mcp"
 else
   cp "$SCRIPT_DIR/mcp.sh" "$INSTALL_DIR/ssh-mcp"
   chmod +x "$INSTALL_DIR/ssh-mcp"
